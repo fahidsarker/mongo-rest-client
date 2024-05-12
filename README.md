@@ -1,5 +1,7 @@
 # Mongo-Rest-Client
 
+[![npm version](https://img.shields.io/npm/v/mongo-rest-client?logo=npm&logoColor=fff)](https://www.npmjs.com/package/mongo-rest-client)
+
 A MongoDB connector that uses fetch to communicate with DB. Fully type safe rest api based connector. Runs everywhere from NodeJS to Edge runtime.
 
 # Features
