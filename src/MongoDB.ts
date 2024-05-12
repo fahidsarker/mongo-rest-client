@@ -4,15 +4,15 @@ import { MongoConfig } from "./MongoConfig";
 export class MongoDB<C extends {}> extends MongoConfig {
   readonly collections: C;
 
-  constructor(
-    config: MongoConfig & { collectionBuilder: (db: MongoDB<any>) => C }
+  private constructor(
+    config: MongoConfig & { schemaBuilder: (db: MongoDB<any>) => C }
   ) {
     super(config);
-    this.collections = config.collectionBuilder(this);
+    this.collections = config.schemaBuilder(this);
   }
 
   static connect = <C extends {}>(
-    config: MongoConfig & { collectionBuilder: (db: MongoDB<any>) => C }
+    config: MongoConfig & { schemaBuilder: (db: MongoDB<any>) => C }
   ) => new MongoDB(config).collections;
 
   collection = <T>(collection: string) =>

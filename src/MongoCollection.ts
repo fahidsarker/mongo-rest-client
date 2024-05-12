@@ -70,32 +70,26 @@ export class MongoCollection<T> extends MongoConfig {
     return doc;
   };
 
-  find = async <R extends T>({
-    filter,
-    sort,
-  }: {
+  find = async <R extends T>(body?: {
     filter: FilterOF<R>;
     sort?: Partial<{
       [key in keyof WithId<R>]: 1 | -1;
     }>;
   }): Promise<WithId<R>[]> => {
+    const { filter, sort } = body ?? {};
     const res = await this.connect("find", {
       filter: filter,
       sort: sort,
     });
 
-    return res.documents.map((doc: any) => {
-      return { ...doc, id: doc._id };
-    });
+    return res.documents;
   };
 
-  updateOne = async <R extends T>({
-    filter,
-    update,
-  }: {
+  updateOne = async <R extends T>(body?: {
     filter: FilterOF<R>;
     update: UpdateOf<R>;
   }): Promise<R> => {
+    const { filter, update } = body ?? {};
     const res = await this.connect("updateOne", {
       filter: filter,
       update: update,
