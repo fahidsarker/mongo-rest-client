@@ -1,0 +1,27 @@
+{
+  "name": "mongo-rest-client",
+  "version": "1.0.1",
+  "description": "",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsup"
+  },
+  "keywords": [
+    "mongodb",
+    "rest",
+    "client"
+  ],
+  "author": "MD Fahid Sarker",
+  "license": "MIT",
+  "homepage": "https://www.fahid.dev",
+  "repository": {
+    "type": "git",
+    "url": "https://www.github.com/fahidsarker/mongo-rest-client"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.2",
+    "typescript": "^5.4.5"
+  }
+}
