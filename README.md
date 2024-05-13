@@ -12,6 +12,18 @@ A MongoDB connector that uses fetch to communicate with DB. Fully type safe rest
 - `Framework agnostic` - Run anywhere that runs JS
 - Uses `fetch` api under-the-hood. So take advantage of caching in framework like NextJS
 
+## Supported Functions
+
+- [x] Find one document (`findOne`)
+- [x] Find many documents (`findMany`)
+- [x] Insert One Document (`insertOne`)
+- [x] Insert Documents (`insertMany`)
+- [x] Update One Document (`updateOne`)
+- [x] Update Documents (`updateMany`)
+- [x] Delete One Document (`deleteOne`)
+- [x] Delete Documents (`deleteMany`)
+- [ ] Aggregate Documents (todo)
+
 # Usage
 
 Create a db by passing `baseUrl` (of data api), `apiKey`, `dbName`, and a schemaBuilder (a function that takes db instance and return an object of `db.collection` (add type to this object to take full advantage of it))

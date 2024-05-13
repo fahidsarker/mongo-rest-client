@@ -1,6 +1,9 @@
 import { MongoConfig } from "./MongoConfig";
+import { DBAction } from "./models/DBAction";
+import { DeleteReturn } from "./models/DeleteReturn";
 import { FilterOF } from "./models/FilterOf";
-import { UpdateOf } from "./models/UpdateOf";
+import { SortOf } from "./models/SortOf";
+import { UpdateOf, UpdateReturn } from "./models/UpdateOf";
 import { WithId } from "./models/WithId";
 
 export class MongoCollection<T> extends MongoConfig {
@@ -11,9 +14,15 @@ export class MongoCollection<T> extends MongoConfig {
     this.collection = config.collection;
   }
 
-  protected connect = async (
-    action: "findOne" | "insertOne" | "find" | "updateOne" | "insertMany",
-    body: Record<string, any>
+  protected connect = async <R extends T>(
+    action: DBAction,
+    body: {
+      filter?: FilterOF<R>;
+      sort?: SortOf<R>;
+      update?: UpdateOf<R>;
+      document?: R;
+      documents?: R[];
+    }
   ) => {
     const res = await fetch(this.baseUrl + "/action/" + action, {
       method: "POST",
@@ -55,7 +64,7 @@ export class MongoCollection<T> extends MongoConfig {
   };
 
   findOne = async <R extends T>(
-    filter: Partial<WithId<R>>
+    filter: FilterOF<R>
   ): Promise<WithId<R> | undefined> => {
     const res = await this.connect("findOne", {
       filter: filter,
@@ -72,9 +81,7 @@ export class MongoCollection<T> extends MongoConfig {
 
   find = async <R extends T>(body?: {
     filter: FilterOF<R>;
-    sort?: Partial<{
-      [key in keyof WithId<R>]: 1 | -1;
-    }>;
+    sort?: SortOf<R>;
   }): Promise<WithId<R>[]> => {
     const { filter, sort } = body ?? {};
     const res = await this.connect("find", {
@@ -88,13 +95,26 @@ export class MongoCollection<T> extends MongoConfig {
   updateOne = async <R extends T>(body?: {
     filter: FilterOF<R>;
     update: UpdateOf<R>;
-  }): Promise<R> => {
-    const { filter, update } = body ?? {};
-    const res = await this.connect("updateOne", {
-      filter: filter,
-      update: update,
-    });
+  }): Promise<UpdateReturn> => {
+    return await this.connect("updateOne", body ?? {});
+  };
 
-    return res;
+  updateMany = async <R extends T>(body?: {
+    filter: FilterOF<R>;
+    update: UpdateOf<R>;
+  }): Promise<UpdateReturn> => {
+    return await this.connect("updateMany", body ?? {});
+  };
+
+  deleteOne = async <R extends T>(
+    filter: FilterOF<R>
+  ): Promise<DeleteReturn> => {
+    return await this.connect("deleteOne", { filter });
+  };
+
+  deleteMany = async <R extends T>(
+    filter: FilterOF<R>
+  ): Promise<DeleteReturn> => {
+    return await this.connect("deleteMany", { filter });
   };
 }

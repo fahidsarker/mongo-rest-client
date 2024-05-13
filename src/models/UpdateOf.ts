@@ -9,3 +9,8 @@ export type UpdateOf<T> = {
   $setOnInsert?: Partial<T>;
   $unset?: Partial<T>;
 };
+
+export type UpdateReturn = {
+  matchedCount: number;
+  modifiedCount: number;
+};
