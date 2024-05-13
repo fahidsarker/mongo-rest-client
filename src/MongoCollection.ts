@@ -7,6 +7,10 @@ import { SortOf } from "./models/SortOf";
 import { UpdateOf, UpdateReturn } from "./models/UpdateOf";
 import { WithId } from "./models/WithId";
 
+export type OptionalFuncInputData = {
+  fetchConfig?: RequestInit;
+};
+
 export class MongoCollection<T> extends MongoConfig {
   protected readonly collection: string;
 
@@ -17,6 +21,7 @@ export class MongoCollection<T> extends MongoConfig {
 
   protected connect = async <T>(
     action: DBAction,
+    config: OptionalFuncInputData | undefined,
     body: {
       filter?: FilterOF<T>;
       sort?: SortOf<T>;
@@ -26,6 +31,7 @@ export class MongoCollection<T> extends MongoConfig {
     }
   ) => {
     const res = await fetch(this.baseUrl + "/action/" + action, {
+      ...(config?.fetchConfig ?? this.defaultFetchConfig ?? {}),
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -42,8 +48,11 @@ export class MongoCollection<T> extends MongoConfig {
     return res.json();
   };
 
-  insertOne = async (data: MaybeID<T>): Promise<WithId<T>> => {
-    const res = await this.connect("insertOne", {
+  insertOne = async (
+    data: MaybeID<T>,
+    config?: OptionalFuncInputData
+  ): Promise<WithId<T>> => {
+    const res = await this.connect("insertOne", config, {
       document: data,
     });
 
@@ -52,8 +61,11 @@ export class MongoCollection<T> extends MongoConfig {
     return { ...data, _id: insertedId };
   };
 
-  insertMany = async (data: MaybeID<T>[]): Promise<WithId<T>[]> => {
-    const res = await this.connect("insertMany", {
+  insertMany = async (
+    data: MaybeID<T>[],
+    config?: OptionalFuncInputData
+  ): Promise<WithId<T>[]> => {
+    const res = await this.connect("insertMany", config, {
       documents: data,
     });
 
@@ -64,8 +76,11 @@ export class MongoCollection<T> extends MongoConfig {
     });
   };
 
-  findOne = async (filter: FilterOF<T>): Promise<WithId<T> | undefined> => {
-    const res = await this.connect("findOne", {
+  findOne = async (
+    filter: FilterOF<T>,
+    config?: OptionalFuncInputData
+  ): Promise<WithId<T> | undefined> => {
+    const res = await this.connect("findOne", config, {
       filter: filter,
     });
 
@@ -78,28 +93,41 @@ export class MongoCollection<T> extends MongoConfig {
     return doc;
   };
 
-  find = async (body?: {
-    filter: FilterOF<T>;
-    sort?: SortOf<T>;
-  }): Promise<WithId<T>[]> => {
-    const res = await this.connect("find", body ?? {});
+  find = async (
+    body?: {
+      filter: FilterOF<T>;
+      sort?: SortOf<T>;
+    },
+    config?: OptionalFuncInputData
+  ): Promise<WithId<T>[]> => {
+    const res = await this.connect("find", config, body ?? {});
 
     return res.documents;
   };
 
-  updateOne = async (body?: {
-    filter: FilterOF<T>;
-    update: UpdateOf<T>;
-  }): Promise<UpdateReturn> => this.connect("updateOne", body ?? {});
+  updateOne = async (
+    body?: {
+      filter: FilterOF<T>;
+      update: UpdateOf<T>;
+    },
+    config?: OptionalFuncInputData
+  ): Promise<UpdateReturn> => this.connect("updateOne", config, body ?? {});
 
-  updateMany = async (body?: {
-    filter: FilterOF<T>;
-    update: UpdateOf<T>;
-  }): Promise<UpdateReturn> => this.connect("updateMany", body ?? {});
+  updateMany = async (
+    body?: {
+      filter: FilterOF<T>;
+      update: UpdateOf<T>;
+    },
+    config?: OptionalFuncInputData
+  ): Promise<UpdateReturn> => this.connect("updateMany", config, body ?? {});
 
-  deleteOne = async (filter: FilterOF<T>): Promise<DeleteReturn> =>
-    this.connect("deleteOne", { filter });
+  deleteOne = async (
+    filter: FilterOF<T>,
+    config?: OptionalFuncInputData
+  ): Promise<DeleteReturn> => this.connect("deleteOne", config, { filter });
 
-  deleteMany = async (filter: FilterOF<T>): Promise<DeleteReturn> =>
-    this.connect("deleteMany", { filter });
+  deleteMany = async (
+    filter: FilterOF<T>,
+    config?: OptionalFuncInputData
+  ): Promise<DeleteReturn> => this.connect("deleteMany", config, { filter });
 }
