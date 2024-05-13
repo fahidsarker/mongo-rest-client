@@ -2,6 +2,7 @@ import { MongoConfig } from "./MongoConfig";
 import { DBAction } from "./models/DBAction";
 import { DeleteReturn } from "./models/DeleteReturn";
 import { FilterOF } from "./models/FilterOf";
+import { MaybeID } from "./models/MaybeID";
 import { SortOf } from "./models/SortOf";
 import { UpdateOf, UpdateReturn } from "./models/UpdateOf";
 import { WithId } from "./models/WithId";
@@ -14,14 +15,14 @@ export class MongoCollection<T> extends MongoConfig {
     this.collection = config.collection;
   }
 
-  protected connect = async <R extends T>(
+  protected connect = async <T>(
     action: DBAction,
     body: {
-      filter?: FilterOF<R>;
-      sort?: SortOf<R>;
-      update?: UpdateOf<R>;
-      document?: R;
-      documents?: R[];
+      filter?: FilterOF<T>;
+      sort?: SortOf<T>;
+      update?: UpdateOf<T>;
+      document?: MaybeID<T>;
+      documents?: MaybeID<T>[];
     }
   ) => {
     const res = await fetch(this.baseUrl + "/action/" + action, {
@@ -41,7 +42,7 @@ export class MongoCollection<T> extends MongoConfig {
     return res.json();
   };
 
-  insertOne = async <R extends T>(data: R): Promise<WithId<R>> => {
+  insertOne = async (data: MaybeID<T>): Promise<WithId<T>> => {
     const res = await this.connect("insertOne", {
       document: data,
     });
@@ -51,7 +52,7 @@ export class MongoCollection<T> extends MongoConfig {
     return { ...data, _id: insertedId };
   };
 
-  insertMany = async <R extends T>(data: R[]): Promise<WithId<R>[]> => {
+  insertMany = async (data: MaybeID<T>[]): Promise<WithId<T>[]> => {
     const res = await this.connect("insertMany", {
       documents: data,
     });
@@ -63,9 +64,7 @@ export class MongoCollection<T> extends MongoConfig {
     });
   };
 
-  findOne = async <R extends T>(
-    filter: FilterOF<R>
-  ): Promise<WithId<R> | undefined> => {
+  findOne = async (filter: FilterOF<T>): Promise<WithId<T> | undefined> => {
     const res = await this.connect("findOne", {
       filter: filter,
     });
@@ -79,42 +78,28 @@ export class MongoCollection<T> extends MongoConfig {
     return doc;
   };
 
-  find = async <R extends T>(body?: {
-    filter: FilterOF<R>;
-    sort?: SortOf<R>;
-  }): Promise<WithId<R>[]> => {
-    const { filter, sort } = body ?? {};
-    const res = await this.connect("find", {
-      filter: filter,
-      sort: sort,
-    });
+  find = async (body?: {
+    filter: FilterOF<T>;
+    sort?: SortOf<T>;
+  }): Promise<WithId<T>[]> => {
+    const res = await this.connect("find", body ?? {});
 
     return res.documents;
   };
 
-  updateOne = async <R extends T>(body?: {
-    filter: FilterOF<R>;
-    update: UpdateOf<R>;
-  }): Promise<UpdateReturn> => {
-    return await this.connect("updateOne", body ?? {});
-  };
+  updateOne = async (body?: {
+    filter: FilterOF<T>;
+    update: UpdateOf<T>;
+  }): Promise<UpdateReturn> => this.connect("updateOne", body ?? {});
 
-  updateMany = async <R extends T>(body?: {
-    filter: FilterOF<R>;
-    update: UpdateOf<R>;
-  }): Promise<UpdateReturn> => {
-    return await this.connect("updateMany", body ?? {});
-  };
+  updateMany = async (body?: {
+    filter: FilterOF<T>;
+    update: UpdateOf<T>;
+  }): Promise<UpdateReturn> => this.connect("updateMany", body ?? {});
 
-  deleteOne = async <R extends T>(
-    filter: FilterOF<R>
-  ): Promise<DeleteReturn> => {
-    return await this.connect("deleteOne", { filter });
-  };
+  deleteOne = async (filter: FilterOF<T>): Promise<DeleteReturn> =>
+    this.connect("deleteOne", { filter });
 
-  deleteMany = async <R extends T>(
-    filter: FilterOF<R>
-  ): Promise<DeleteReturn> => {
-    return await this.connect("deleteMany", { filter });
-  };
+  deleteMany = async (filter: FilterOF<T>): Promise<DeleteReturn> =>
+    this.connect("deleteMany", { filter });
 }
