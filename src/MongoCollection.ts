@@ -30,7 +30,6 @@ export class MongoCollection<T> extends MongoConfig {
       documents?: MaybeID<T>[];
     }
   ) => {
-    console.log(this.collection, this.dbName, body);
     const res = await fetch(this.baseUrl + "/action/" + action, {
       ...(config?.fetchConfig ?? this.defaultFetchConfig ?? {}),
       method: "POST",
@@ -47,7 +46,6 @@ export class MongoCollection<T> extends MongoConfig {
     });
 
     const data = await res.json();
-    console.log(data);
     return data;
   };
 
