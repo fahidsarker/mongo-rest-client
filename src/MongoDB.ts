@@ -13,8 +13,14 @@ export class MongoDB<C extends {}> extends MongoConfig {
 
   static connect = <C extends {}>(
     config: MongoConfig & { schemaBuilder: (db: MongoDB<any>) => C }
-  ) => new MongoDB(config).collections;
+  ) => {
+    const db = new MongoDB(config);
+    return {
+      ...db.collections,
+      collection: db.collection,
+    };
+  };
 
-  collection = <T>(collection: string) =>
+  collection = <T = any>(collection: string) =>
     new MongoCollection<T>({ ...this, collection });
 }

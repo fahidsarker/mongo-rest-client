@@ -30,6 +30,7 @@ export class MongoCollection<T> extends MongoConfig {
       documents?: MaybeID<T>[];
     }
   ) => {
+    console.log(this.collection, this.dbName, body);
     const res = await fetch(this.baseUrl + "/action/" + action, {
       ...(config?.fetchConfig ?? this.defaultFetchConfig ?? {}),
       method: "POST",
@@ -38,14 +39,16 @@ export class MongoCollection<T> extends MongoConfig {
         "api-key": this.apiKey,
       },
       body: JSON.stringify({
-        dataSource: "Cluster0",
+        dataSource: this.clusterName,
         collection: this.collection,
         database: this.dbName,
         ...body,
       }),
     });
 
-    return res.json();
+    const data = await res.json();
+    console.log(data);
+    return data;
   };
 
   insertOne = async (
@@ -106,20 +109,24 @@ export class MongoCollection<T> extends MongoConfig {
   };
 
   updateOne = async (
-    body?: {
-      filter: FilterOF<T>;
-      update: UpdateOf<T>;
-    },
+    filter: FilterOF<T>,
+    update: UpdateOf<T>,
     config?: OptionalFuncInputData
-  ): Promise<UpdateReturn> => this.connect("updateOne", config, body ?? {});
+  ): Promise<UpdateReturn> =>
+    this.connect("updateOne", config, {
+      filter,
+      update,
+    });
 
   updateMany = async (
-    body?: {
-      filter: FilterOF<T>;
-      update: UpdateOf<T>;
-    },
+    filter: FilterOF<T>,
+    update: UpdateOf<T>,
     config?: OptionalFuncInputData
-  ): Promise<UpdateReturn> => this.connect("updateMany", config, body ?? {});
+  ): Promise<UpdateReturn> =>
+    this.connect("updateMany", config, {
+      filter,
+      update,
+    });
 
   deleteOne = async (
     filter: FilterOF<T>,
